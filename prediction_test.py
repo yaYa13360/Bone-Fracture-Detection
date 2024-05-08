@@ -33,7 +33,10 @@ def load_path(path):
     return dataset
 
 
-categories_parts = ["Elbow", "Hand", "Shoulder"]
+# categories_parts = ["Elbow", "Hand", "Shoulder"]
+categories_parts = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND", "XR_HUMERUS", "XR_SHOULDER", "XR_WRIST"]
+# categories_parts = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND", "XR_HUMERUS", "XR_SHOULDER", "XR_WRIST"]
+
 categories_fracture = ['fractured', 'normal']
 
 
@@ -44,15 +47,15 @@ def reportPredict(dataset):
 
     print(Fore.YELLOW +
           '{0: <28}'.format('Name') +
-          '{0: <14}'.format('Part') +
-          '{0: <20}'.format('Predicted Part') +
+        #   '{0: <14}'.format('Part') +
+        #   '{0: <20}'.format('Predicted Part') +
           '{0: <20}'.format('Status') +
           '{0: <20}'.format('Predicted Status'))
     for img in dataset:
         body_part_predict = predict(img['image_path'])
         fracture_predict = predict(img['image_path'], body_part_predict)
-        if img['body_part'] == body_part_predict:
-            part_count = part_count + 1
+        # if img['body_part'] == body_part_predict:
+        #     part_count = part_count + 1
         if img['label'] == fracture_predict:
             status_count = status_count + 1
             color = Fore.GREEN
@@ -60,12 +63,12 @@ def reportPredict(dataset):
             color = Fore.RED
         print(color +
               '{0: <28}'.format(img['image_name']) +
-              '{0: <14}'.format(img['body_part']) +
-              '{0: <20}'.format(body_part_predict) +
+            #   '{0: <14}'.format(img['body_part']) +
+            #   '{0: <20}'.format(body_part_predict) +
               '{0: <20}'.format((img['label'])) +
               '{0: <20}'.format(fracture_predict))
 
-    print(Fore.BLUE + '\npart acc: ' + str("%.2f" % (part_count / len(dataset) * 100)) + '%')
+    # print(Fore.BLUE + '\npart acc: ' + str("%.2f" % (part_count / len(dataset) * 100)) + '%')
     print(Fore.BLUE + 'status acc: ' + str("%.2f" % (status_count / len(dataset) * 100)) + '%')
     return
 
