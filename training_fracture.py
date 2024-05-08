@@ -17,6 +17,8 @@ from tensorflow.keras.optimizers import Adam
 #                       ....                   \
 #
 
+test_acc = []
+
 def load_path(path, part):
     """
     load X-ray dataset
@@ -54,8 +56,9 @@ def load_path(path, part):
 # this function get part and know what kind of part to train, save model and save plots
 def trainPart(part):
     # categories = ['fractured', 'normal']
-    THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-    image_dir = THIS_FOLDER + '/Dataset/'
+    # THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+    # image_dir = THIS_FOLDER + '/Dataset/'
+    image_dir = "D://reaserch//data//MURA-v1.1//Dataset"
     data = load_path(image_dir, part)
     labels = []
     filepaths = []
@@ -151,40 +154,47 @@ def trainPart(part):
     history = model.fit(train_images, validation_data=val_images, epochs=25, callbacks=[callbacks])
 
     # save model to this path
-    model.save(THIS_FOLDER + "/weights/ResNet50_" + part + "_frac.h5")
+    # model.save(THIS_FOLDER + "/weights/ResNet50_" + part + "_frac.h5")
+    model.save("./weights2/ResNet50_" + part + "_frac.h5")
     results = model.evaluate(test_images, verbose=0)
     print(part + " Results:")
     print(results)
     print(f"Test Accuracy: {np.round(results[1] * 100, 2)}%")
+    test_acc.append("Test Accuracy of " + part + f": {np.round(results[1] * 100, 2)}%")
 
     # create plots for accuracy and save it
     plt.plot(history.history['accuracy'])
     plt.plot(history.history['val_accuracy'])
-    plt.title('model accuracy')
+    plt.title(part + ' model accuracy')
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
+    plt.legend(['train', 'val'], loc='upper left')
     # plt.show()
     figAcc = plt.gcf()
-    my_file = os.path.join(THIS_FOLDER, "./plots/FractureDetection/" + part + "/_Accuracy.jpeg")
+    # my_file = os.path.join(THIS_FOLDER, "./plots/FractureDetection/" + part + "/_Accuracy.jpeg")
+    my_file = os.path.join("./plots2/FractureDetection/" + part + "/_Accuracy.jpeg")
     figAcc.savefig(my_file)
     plt.clf()
 
     # create plots for loss and save it
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
-    plt.title('model loss')
+    plt.title(part + ' model loss')
     plt.ylabel('loss')
     plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
+    plt.legend(['train', 'val'], loc='upper left')
     # plt.show()
     figAcc = plt.gcf()
-    my_file = os.path.join(THIS_FOLDER, "./plots/FractureDetection/" + part + "/_Loss.jpeg")
+    # my_file = os.path.join(THIS_FOLDER, "./plots/FractureDetection/" + part + "/_Loss.jpeg")
+    my_file = os.path.join("./plots2/FractureDetection/" + part + "/_Loss.jpeg")
     figAcc.savefig(my_file)
     plt.clf()
 
 
 # run the function and create model for each parts in the array
-categories_parts = ["Elbow", "Hand", "Shoulder"]
+# categories_parts = ["Elbow", "Hand", "Shoulder"]
+categories_parts = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND", "XR_HUMERUS", "XR_SHOULDER", "XR_WRIST"]
 for category in categories_parts:
     trainPart(category)
+
+print(test_acc)

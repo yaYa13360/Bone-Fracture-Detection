@@ -47,14 +47,16 @@ def load_path(path):
 
 
 # load data from path
-THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-image_dir = THIS_FOLDER + '/Dataset'
+# THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+# image_dir = THIS_FOLDER + '/Dataset'
+image_dir = "D://reaserch//data//MURA-v1.1//Dataset"
 data = load_path(image_dir)
 labels = []
 filepaths = []
 
 # add labels for dataframe for each category 0-Elbow, 1-Hand, 2-Shoulder
-Labels = ["Elbow", "Hand", "Shoulder"]
+# Labels = ["Elbow", "Hand", "Shoulder"]
+Labels = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND", "XR_HUMERUS", "XR_SHOULDER", "XR_WRIST"]
 for row in data:
     labels.append(row['label'])
     filepaths.append(row['image_path'])
@@ -143,7 +145,8 @@ history = model.fit(train_images, validation_data=val_images, epochs=25,
                     callbacks=[callbacks])
 
 # save model to this path
-model.save(THIS_FOLDER + "/weights/ResNet50_BodyParts.h5")
+# model.save(THIS_FOLDER + "/weights/ResNet50_BodyParts.h5")
+model.save("./weights2/ResNet50_BodyParts.h5")
 results = model.evaluate(test_images, verbose=0)
 print(results)
 print(f"Test Accuracy: {np.round(results[1] * 100, 2)}%")
@@ -156,7 +159,11 @@ plt.title('model accuracy')
 plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.show()
+# plt.show()
+figAcc = plt.gcf()
+my_file = os.path.join("./plots2/BodyPartAcc.jpeg")
+figAcc.savefig(my_file)
+plt.clf()
 
 # create plots for loss and save it
 plt.plot(history.history['loss'])
@@ -165,4 +172,10 @@ plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.show()
+# plt.show()
+figAcc = plt.gcf()
+# my_file = os.path.join(THIS_FOLDER, "./plots/FractureDetection/" + part + "/_Loss.jpeg")
+figAcc = plt.gcf()
+my_file = os.path.join("./plots2/BodyPartLoss.jpeg")
+figAcc.savefig(my_file)
+plt.clf()
