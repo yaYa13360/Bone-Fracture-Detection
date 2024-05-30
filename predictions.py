@@ -87,23 +87,20 @@ def save_and_display_gradcam(img_path, heatmap, cam_path="cam.jpg", alpha=0.4):
 # otherwise - fracture predict for each part
 def predict(img, model="Parts"):
     size = 224
-    if model == 'Parts':
-        chosen_model = model_parts
-    else:
-        if model == 'XR_ELBOW':
-            chosen_model = model_elbow_frac
-        elif model == 'XR_FINGER':
-            chosen_model = model_finger_frac
-        elif model == 'XR_FOREARM':
-            chosen_model = model_forearm_frac
-        elif model == 'XR_HAND':
-            chosen_model = model_hand_frac
-        elif model == 'XR_HUMERUS':
-            chosen_model = model_humerus_frac
-        elif model == 'XR_SHOULDER':
-            chosen_model = model_shoulder_frac
-        elif model == 'XR_WRIST':
-            chosen_model = model_wrist_frac
+    if model == 'XR_ELBOW':
+        chosen_model = model_elbow_frac
+    elif model == 'XR_FINGER':
+        chosen_model = model_finger_frac
+    elif model == 'XR_FOREARM':
+        chosen_model = model_forearm_frac
+    elif model == 'XR_HAND':
+        chosen_model = model_hand_frac
+    elif model == 'XR_HUMERUS':
+        chosen_model = model_humerus_frac
+    elif model == 'XR_SHOULDER':
+        chosen_model = model_shoulder_frac
+    elif model == 'XR_WRIST':
+        chosen_model = model_wrist_frac
 
 
     # load image with 224px224p (the training model image size, rgb)

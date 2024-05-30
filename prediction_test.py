@@ -3,15 +3,7 @@ from colorama import Fore
 from predictions import predict
 
 
-# load images to predict from paths
-#               ....                       /    elbow1.jpg
-#               Hand          fractured  --   elbow2.png
-#           /                /             \    .....
-#   test   -   Elbow  ------
-#           \                \         /        elbow1.png
-#               Shoulder        normal --       elbow2.jpg
-#               ....                   \
-#
+# maru prediction with cam
 def load_path(path):
     dataset = []
     for body in os.listdir(path):
@@ -33,9 +25,8 @@ def load_path(path):
     return dataset
 
 
-# categories_parts = ["Elbow", "Hand", "Shoulder"]
+
 categories_parts = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND", "XR_HUMERUS", "XR_SHOULDER", "XR_WRIST"]
-# categories_parts = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND", "XR_HUMERUS", "XR_SHOULDER", "XR_WRIST"]
 
 categories_fracture = ['fractured', 'normal']
 
@@ -52,8 +43,8 @@ def reportPredict(dataset):
           '{0: <20}'.format('Status') +
           '{0: <20}'.format('Predicted Status'))
     for img in dataset:
-        body_part_predict = predict(img['image_path'])
-        fracture_predict = predict(img['image_path'], body_part_predict)
+        # 直接指定body part
+        fracture_predict = predict(img['image_path'], img['body_part'])
         # if img['body_part'] == body_part_predict:
         #     part_count = part_count + 1
         if img['label'] == fracture_predict:
