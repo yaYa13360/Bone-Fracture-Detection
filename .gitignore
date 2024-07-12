@@ -4,4 +4,5 @@ weights/*
 test_data/*
 cam/*
 plots/*
+predictions/*
 old_training/*
