@@ -13,6 +13,7 @@ import os
 # label
 # =========================
 def class_2_type(root):
+    label = ""
     if "正常組" in root:
         label = "0"
     else:
@@ -20,6 +21,7 @@ def class_2_type(root):
     return label
 
 def class_3_type(root):
+    label = ""
     if "正常組" in root:
         label = "0"
     elif "雙踝" in root:
@@ -51,11 +53,11 @@ def load_path(path, class_count):
     return dataset
 
 
-def trainByPart(image_dir,class_count=2, maru_part=None):
+def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/"):
 
     ## load data and  labels
     # =========================
-    data = load_path(image_dir)
+    data = load_path(image_dir, class_count)
     labels = []
     filepaths = []
     for row in data:
@@ -81,7 +83,7 @@ def trainByPart(image_dir,class_count=2, maru_part=None):
 
     # 哪個部位的權重
     # =========================
-    part2=""
+    part2="imagenet"
     if maru_part is not None:
         part2 = maru_part.split("_")[2]
     # =========================
@@ -167,7 +169,7 @@ def trainByPart(image_dir,class_count=2, maru_part=None):
     # callbacks = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
     
     ## no early stop
-    history = model.fit(train_images, validation_data=val_images, epochs=25)
+    history = model.fit(train_images, validation_data=val_images, epochs=2)
 
     results = model.evaluate(test_images, verbose=0)
     # =========================
@@ -175,7 +177,7 @@ def trainByPart(image_dir,class_count=2, maru_part=None):
 
     ## save model to this path
     # =========================
-    # model.save("./weights3/" + part2 +"_"+ part+"_frac.h5")
+    model.save(save_path + part2 + "_" + part + "_" + str(class_count) + "class" + "_frac.h5")
     # =========================
 
 
@@ -193,67 +195,68 @@ def trainByPart(image_dir,class_count=2, maru_part=None):
 
     # create plots for accuracy and save it
     # =========================
-    # plt.plot(history.history['accuracy'])
-    # plt.plot(history.history['val_accuracy'])
-    # plt.title(part + " " + part2 +' model accuracy')
-    # plt.ylabel('accuracy')
-    # plt.xlabel('epoch')
-    # plt.legend(['train', 'val'], loc='upper left')
-    # figAcc = plt.gcf()
-    # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + class_count + "_Accuracy.jpeg")
-    # figAcc.savefig(my_file)
-    # plt.clf()
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title(part + " " + part2 +' model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'val'], loc='upper left')
+    figAcc = plt.gcf()
+    my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Accuracy.jpeg")
+    figAcc.savefig(my_file)
+    plt.clf()
     # =========================
 
 
     ## create plots for loss and save it
     # =========================
-    # plt.plot(history.history['loss'])
-    # plt.plot(history.history['val_loss'])
-    # plt.title(part2 +"_"+ part + ' model loss')
-    # plt.ylabel('loss')
-    # plt.xlabel('epoch')
-    # plt.legend(['train', 'val'], loc='upper left')
-    # figAcc = plt.gcf()
-    # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + class_count + "_Loss.jpeg")
-    # figAcc.savefig(my_file)
-    # plt.clf()
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title(part2 +"_"+ part + ' model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'val'], loc='upper left')
+    figAcc = plt.gcf()
+    my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Loss.jpeg")
+    figAcc.savefig(my_file)
+    plt.clf()
     # =========================
 
 
     ## plot confusion matrix
     # =========================
-    # cm = confusion_matrix(test_images.labels, predicted_labels)
-    # cm_display = ConfusionMatrixDisplay(confusion_matrix = cm, display_labels = [0, 1, 2])
-    # cm_display.plot()
-    # figAcc = plt.gcf()
-    # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + class_count + "_Confusion Matrix.jpeg")
-    # figAcc.savefig(my_file)
-    # plt.clf()
+    cm = confusion_matrix(test_images.labels, predicted_labels)
+    cm_display = ConfusionMatrixDisplay(confusion_matrix = cm, display_labels = [0, 1, 2])
+    cm_display.plot()
+    figAcc = plt.gcf()
+    my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Confusion Matrix.jpeg")
+    figAcc.savefig(my_file)
+    plt.clf()
     # =========================
 
 
 
 ###################################
 ## 單次訓練
+## save_path: 儲存模型的目錄
 ###################################
 
 
 ## 訓練front or side
 # =========================
-# path = "E://data_bone//雲端//雲端_clean2///side"
-path = "E://data_bone//雲端//雲端_clean2//front"
+path = "E://data_bone//all///side"
+save_path = "./weights/中榮/side/transfer_imagenet/all/"
 # =========================
 
 ## 所有部位
 # =========================
-maru_part_arr = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND", "XR_HUMERUS", "XR_SHOULDER", "XR_WRIST"]
-for a in maru_part_arr:
-    maru_part = f"D://reaserch//Bone-Fracture-Detection//weights2//ResNet50_{a}_frac.h5"
-    trainByPart(path, maru_part)
+# maru_part_arr = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND", "XR_HUMERUS", "XR_SHOULDER", "XR_WRIST"]
+# for a in maru_part_arr:
+#     maru_part = f"D://reaserch//Bone-Fracture-Detection//weights2//ResNet50_{a}_frac.h5"
+#     trainByPart(path, maru_part)
 # =========================
 
 ## imagenet
 # =========================
-# trainByPart(path)
+trainByPart(image_dir=path, class_count=3, save_path=save_path)
 # =========================

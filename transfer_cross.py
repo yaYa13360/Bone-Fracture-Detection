@@ -14,6 +14,7 @@ import os
 # label
 # =========================
 def class_2_type(root):
+    label = ""
     if "正常組" in root:
         label = "0"
     else:
@@ -21,6 +22,7 @@ def class_2_type(root):
     return label
 
 def class_3_type(root):
+    label = ""
     if "正常組" in root:
         label = "0"
     elif "雙踝" in root:
