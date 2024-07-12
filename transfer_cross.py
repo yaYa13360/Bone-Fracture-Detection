@@ -15,7 +15,7 @@ import os
 # =========================
 def class_2_type(root):
     label = ""
-    if "正常組" in root:
+    if "正常" in root:
         label = "0"
     else:
         label = "1"
@@ -23,7 +23,7 @@ def class_2_type(root):
 
 def class_3_type(root):
     label = ""
-    if "正常組" in root:
+    if "正常" in root:
         label = "0"
     elif "雙踝" in root:
         label = "1"
@@ -81,7 +81,7 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None)
     # =========================
     
     print("-------Training " + part + "-------")
-    train_df, test_df = train_test_split(images, train_size=0.9, shuffle=True, random_state=1)
+    train_df, test_df = train_test_split(images, train_size=0.9, shuffle=True, random_state=1, stratify=images['Label'])
     ## test  image
     # =========================
     test_generator = tf.keras.preprocessing.image.ImageDataGenerator(preprocessing_function=tf.keras.applications.resnet50.preprocess_input)
@@ -212,8 +212,7 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None)
 
 ## 訓練front or side
 # =========================
-# path = "E://data_bone//雲端//雲端_clean2///side"
-path = "E://data_bone//雲端//雲端_clean2//front"
+path = "E://data_bone//all//side"
 # =========================
 
 train_cross_validation(image_dir=path, class_count=3)

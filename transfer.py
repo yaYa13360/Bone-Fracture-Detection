@@ -14,7 +14,7 @@ import os
 # =========================
 def class_2_type(root):
     label = ""
-    if "正常組" in root:
+    if "正常" in root:
         label = "0"
     else:
         label = "1"
@@ -22,7 +22,7 @@ def class_2_type(root):
 
 def class_3_type(root):
     label = ""
-    if "正常組" in root:
+    if "正常" in root:
         label = "0"
     elif "雙踝" in root:
         label = "1"
@@ -90,8 +90,10 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/")
 
     ## split image
     # =========================
-    train_df, test_df = train_test_split(images, train_size=0.9, shuffle=True, random_state=1)
-
+    train_df, test_df = train_test_split(images, train_size=0.9, shuffle=True, random_state=1, stratify=images['Label'])
+    print("Training set label distribution:\n", train_df['Label'].value_counts(normalize=True))
+    print("Test set label distribution:\n", test_df['Label'].value_counts(normalize=True))
+    
     train_generator = tf.keras.preprocessing.image.ImageDataGenerator(horizontal_flip=True,
                                                                       preprocessing_function=tf.keras.applications.resnet50.preprocess_input,
                                                                       validation_split=0.2)
@@ -169,7 +171,7 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/")
     # callbacks = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
     
     ## no early stop
-    history = model.fit(train_images, validation_data=val_images, epochs=2)
+    history = model.fit(train_images, validation_data=val_images, epochs=25)
 
     results = model.evaluate(test_images, verbose=0)
     # =========================
@@ -188,8 +190,8 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/")
     predicted_labels = np.argmax(pred, axis=1)
     f1 = f1_score(test_images.labels, predicted_labels, average='macro')
     print(results)
-    print(f"Test Accuracy: {np.round(results[1] * 100, 2)}%")
-    print(f"f1 score: {np.round(f1, 2)}%")
+    print(f"Test Accuracy: {np.round(results[1], 2)}")
+    print(f"f1 score: {np.round(f1, 2)}")
     # =========================
 
 
@@ -225,9 +227,15 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/")
 
     ## plot confusion matrix
     # =========================
+    if class_count == 2:
+        display_labels = [0, 1]
+    elif class_count == 3:
+        display_labels = [0, 1, 2]
+
     cm = confusion_matrix(test_images.labels, predicted_labels)
-    cm_display = ConfusionMatrixDisplay(confusion_matrix = cm, display_labels = [0, 1, 2])
+    cm_display = ConfusionMatrixDisplay(confusion_matrix = cm, display_labels = display_labels)
     cm_display.plot()
+    plt.title(part2 +"_"+ part + ' Confusion Matrix')
     figAcc = plt.gcf()
     my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Confusion Matrix.jpeg")
     figAcc.savefig(my_file)
@@ -244,7 +252,7 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/")
 
 ## 訓練front or side
 # =========================
-path = "E://data_bone//all///side"
+path = "E://data_bone//all//side"
 save_path = "./weights/中榮/side/transfer_imagenet/all/"
 # =========================
 
@@ -258,5 +266,5 @@ save_path = "./weights/中榮/side/transfer_imagenet/all/"
 
 ## imagenet
 # =========================
-trainByPart(image_dir=path, class_count=3, save_path=save_path)
+trainByPart(image_dir=path, class_count=2, save_path=save_path)
 # =========================
