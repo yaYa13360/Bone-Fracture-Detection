@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 # 載入腳踝骨折照片
 import os
@@ -16,11 +17,11 @@ def load_path(path):
             # label
             label = ""
             if "正常組" in root:
-                label = "nor"
-            elif "三踝" in root:
-                label = "tri"
+                label = "0"
             elif "雙踝" in root:
-                label = "bi"
+                label = "1"
+            elif "三踝" in root:
+                label = "2"
             # else:
             #     label = "fra"
 
@@ -131,40 +132,47 @@ def trainByPart(image_dir):
     history = model.fit(train_images, validation_data=val_images, epochs=25)
 
     # save model to this path
-    model.save("./weights3/" +"imagenet_3part_"+ part+"_frac.h5")
+    # model.save("./weights3/" +"imagenet_3part_"+ part+"_frac.h5")
     results = model.evaluate(test_images, verbose=0)
-    print("imagenet_3part_"+ part + " Results:")
-    print(results)
+    # print("imagenet_3part_"+ part + " Results:")
+    # print(results)
     print(f"Test Accuracy: {np.round(results[1] * 100, 2)}%")
-    # test_acc.append("Test Accuracy of " + part2 +"_"+ part + f": {np.round(results[1] * 100, 2)}%")
 
-    # create plots for accuracy and save it
-    plt.plot(history.history['accuracy'])
-    plt.plot(history.history['val_accuracy'])
-    plt.title("imagenet_3part_"+ part + ' model accuracy')
-    plt.ylabel('accuracy')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'val'], loc='upper left')
+    # plot confusion matrix
+    # pred = model.predict(test_images)
+    # predicted_labels = np.argmax(pred, axis=1)
+    # cm = confusion_matrix(test_images.labels, predicted_labels)
+    # cm_display = ConfusionMatrixDisplay(confusion_matrix = cm, display_labels = [0, 1, 2])
+    # cm_display.plot()
     # plt.show()
-    figAcc = plt.gcf()
-    my_file = os.path.join("./plots3/" + "imagenet_3part_"+ part + "_Accuracy.jpeg")
-    figAcc.savefig(my_file)
-    plt.clf()
 
-    # create plots for loss and save it
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title("imagenet_3part_"+ part + ' model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'val'], loc='upper left')
-    # plt.show()
-    figAcc = plt.gcf()
-    my_file = os.path.join("./plots3/" + "imagenet_3part_"+ part + "_Loss.jpeg")
-    figAcc.savefig(my_file)
-    plt.clf()
+    # # create plots for accuracy and save it
+    # plt.plot(history.history['accuracy'])
+    # plt.plot(history.history['val_accuracy'])
+    # plt.title("imagenet_3part_"+ part + ' model accuracy')
+    # plt.ylabel('accuracy')
+    # plt.xlabel('epoch')
+    # plt.legend(['train', 'val'], loc='upper left')
+    # # plt.show()
+    # figAcc = plt.gcf()
+    # my_file = os.path.join("./plots3/" + "imagenet_3part_"+ part + "_Accuracy.jpeg")
+    # figAcc.savefig(my_file)
+    # plt.clf()
 
-# path = "E://data_bone//雲端//雲端_clean2//side"
-path = "E://data_bone//雲端//雲端_clean2//front"
+    # # create plots for loss and save it
+    # plt.plot(history.history['loss'])
+    # plt.plot(history.history['val_loss'])
+    # plt.title("imagenet_3part_"+ part + ' model loss')
+    # plt.ylabel('loss')
+    # plt.xlabel('epoch')
+    # plt.legend(['train', 'val'], loc='upper left')
+    # # plt.show()
+    # figAcc = plt.gcf()
+    # my_file = os.path.join("./plots3/" + "imagenet_3part_"+ part + "_Loss.jpeg")
+    # figAcc.savefig(my_file)
+    # plt.clf()
+
+path = "E://data_bone//雲端//雲端_clean2//side"
+# path = "E://data_bone//雲端//雲端_clean2//front"
 
 trainByPart(path)
