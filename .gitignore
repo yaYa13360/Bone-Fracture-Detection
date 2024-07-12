@@ -1,6 +1,7 @@
-Dataset/*
+.gitignore
+__pycache__/*
 weights/*
-plots2/*
-test/*
+test_data/*
 cam/*
-weights2/*
+plots/*
+old_training/*
