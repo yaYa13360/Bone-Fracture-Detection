@@ -3,10 +3,9 @@ import numpy as np
 import pandas as pd
 import os.path
 # import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
-from sklearn.model_selection import KFold
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, f1_score
 import matplotlib.pyplot as plt
 import os
@@ -20,6 +19,15 @@ def class_2_type(root):
     else:
         label = "1"
     return label
+
+
+# def class_2_type(root):
+#     label = ""
+#     if "雙踝" in root:
+#         label = "0"
+#     elif "三踝" in root:
+#         label = "1"
+#     return label
 
 def class_3_type(root):
     label = ""
@@ -102,10 +110,13 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None)
     fold_no = 1
     test_acc = []
     test_f1 = []
-    kfold = KFold(n_splits=n_splits, shuffle=True, random_state=1)
-    for train_index, val_index in kfold.split(train_df):
+    kfold = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=1)
+    for train_index, val_index in kfold.split(train_df, train_df['Label']):
         k_fold_train = train_df.iloc[train_index]
         k_fold_val = train_df.iloc[val_index]
+        # print("K-fold training set label distribution:\n", k_fold_train['Label'].value_counts(normalize=True))
+        # print("K-fold validation set label distribution:\n", k_fold_val['Label'].value_counts(normalize=True))
+        
         ## train, validation image
         # =========================
         train_generator = tf.keras.preprocessing.image.ImageDataGenerator(horizontal_flip=True,preprocessing_function=tf.keras.applications.resnet50.preprocess_input)
@@ -133,7 +144,7 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None)
             seed=42
         )
         # =========================
-
+        
         ## load model
         # =========================
         if maru_part is not None:
@@ -171,7 +182,7 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None)
 
         ## print each results
         # =========================
-        test_acc.append(np.round(results[1] * 100, 2))
+        test_acc.append(np.round(results[1], 2))
         pred = model.predict(test_images)
         predicted_labels = np.argmax(pred, axis=1)
         f1 = f1_score(test_images.labels, predicted_labels, average='macro')
@@ -212,7 +223,7 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None)
 
 ## 訓練front or side
 # =========================
-path = "E://data_bone//all//side"
+path = "E://data_bone//all//front"
 # =========================
 
-train_cross_validation(image_dir=path, class_count=3)
+train_cross_validation(image_dir=path, class_count=2)

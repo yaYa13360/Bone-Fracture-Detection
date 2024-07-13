@@ -91,8 +91,8 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/")
     ## split image
     # =========================
     train_df, test_df = train_test_split(images, train_size=0.9, shuffle=True, random_state=1, stratify=images['Label'])
-    print("Training set label distribution:\n", train_df['Label'].value_counts(normalize=True))
-    print("Test set label distribution:\n", test_df['Label'].value_counts(normalize=True))
+    print("Training set label distribution:\n", train_df['Label'].value_counts(normalize=False))
+    print("Test set label distribution:\n", test_df['Label'].value_counts(normalize=False))
     
     train_generator = tf.keras.preprocessing.image.ImageDataGenerator(horizontal_flip=True,
                                                                       preprocessing_function=tf.keras.applications.resnet50.preprocess_input,
