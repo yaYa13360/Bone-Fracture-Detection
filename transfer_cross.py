@@ -10,7 +10,7 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, f1_score
 import matplotlib.pyplot as plt
 import os
 
-# label
+## label
 # =========================
 def class_2_type(root):
     label = ""
@@ -20,6 +20,17 @@ def class_2_type(root):
         label = "1"
     return label
 
+# def class_4_type(root):
+#     label = ""
+#     if "0" in root:
+#         label = "0"
+#     elif "1" in root:
+#         label = "1"
+#     elif "2" in root:
+#         label = "2"
+#     else:
+#         label = "3"
+#     return label
 
 # def class_2_type(root):
 #     label = ""
@@ -47,10 +58,14 @@ def load_path(path, class_count):
     if class_count == 2:
         class_type = class_2_type
     elif class_count == 3:
-        class_type = class_3_type       
+        class_type = class_3_type  
+    # elif class_count == 4:
+    #     class_type = class_4_type     
+
     for root, dirs, files in os.walk(path):
         for file in files:
             label = class_type(root)
+            # if label != "":
             dataset.append(
                             {   
                                 'uuid': root.split("\\")[-1],
@@ -61,7 +76,8 @@ def load_path(path, class_count):
 
     return dataset
 
-def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None):
+def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None,  chosen_model='resnet50'):
+
 
     ## load data and  labels
     # =========================
@@ -87,12 +103,52 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None)
     else:
         part = "Lateral"
     # =========================
-    
+
+    ## load chosen model
+    # =========================
+    if chosen_model == 'resnet50':
+        preprocessing_function_chosen = tf.keras.applications.resnet50.preprocess_input
+        pretrained_model_chosen = tf.keras.applications.resnet50.ResNet50
+    # elif chosen_model == 'resnet152':
+    #     preprocessing_function_chosen = tf.keras.applications.resnet152.preprocess_input
+    #     pretrained_model_chosen = tf.keras.applications.resnet152.ResNet152
+    elif chosen_model == 'vgg16':
+        preprocessing_function_chosen = tf.keras.applications.vgg16.preprocess_input
+        pretrained_model_chosen = tf.keras.applications.vgg16.VGG16
+    elif chosen_model == 'vgg19':
+        preprocessing_function_chosen = tf.keras.applications.vgg19.preprocess_input
+        pretrained_model_chosen = tf.keras.applications.vgg19.VGG19
+    elif chosen_model == 'mobilenet':
+        preprocessing_function_chosen = tf.keras.applications.mobilenet.preprocess_input
+        pretrained_model_chosen = tf.keras.applications.mobilenet.MobileNet
+    elif chosen_model == 'mobilenet_v2':
+        preprocessing_function_chosen = tf.keras.applications.mobilenet_v2.preprocess_input
+        pretrained_model_chosen = tf.keras.applications.mobilenet_v2.MobileNetV2
+    elif chosen_model == 'efficientnet':
+        preprocessing_function_chosen = tf.keras.applications.efficientnet.preprocess_input
+        pretrained_model_chosen = tf.keras.applications.efficientnet.EfficientNetB0
+    elif chosen_model == 'inception_v3':
+        preprocessing_function_chosen = tf.keras.applications.inception_v3.preprocess_input
+        pretrained_model_chosen = tf.keras.applications.inception_v3.InceptionV3
+    else:
+        raise ValueError("Model name not recognized. Please choose a valid model.")
+
+
+
+
+    # =========================
+
+    ## to do: loss function
+    # =========================
+    # =========================
+
+
     print("-------Training " + part + "-------")
-    train_df, test_df = train_test_split(images, train_size=0.9, shuffle=True, random_state=1, stratify=images['Label'])
+    train_df, test_df = train_test_split(images, train_size=0.8, shuffle=True, random_state=1, stratify=images['Label'])
+
     ## test  image
     # =========================
-    test_generator = tf.keras.preprocessing.image.ImageDataGenerator(preprocessing_function=tf.keras.applications.resnet50.preprocess_input)
+    test_generator = tf.keras.preprocessing.image.ImageDataGenerator(preprocessing_function=preprocessing_function_chosen)
     test_images = test_generator.flow_from_dataframe(
         dataframe=test_df,
         x_col='Filepath',
@@ -119,8 +175,9 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None)
         
         ## train, validation image
         # =========================
-        train_generator = tf.keras.preprocessing.image.ImageDataGenerator(horizontal_flip=True,preprocessing_function=tf.keras.applications.resnet50.preprocess_input)
-        val_generator = tf.keras.preprocessing.image.ImageDataGenerator(preprocessing_function=tf.keras.applications.resnet50.preprocess_input)
+        # 關閉翻轉
+        train_generator = tf.keras.preprocessing.image.ImageDataGenerator(horizontal_flip=False,preprocessing_function=preprocessing_function_chosen)
+        val_generator = tf.keras.preprocessing.image.ImageDataGenerator(preprocessing_function=preprocessing_function_chosen)
         train_images = train_generator.flow_from_dataframe(
             dataframe=k_fold_train,
             x_col='Filepath',
@@ -150,7 +207,7 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None)
         if maru_part is not None:
             pretrained_model = tf.keras.models.load_model(maru_part)
         else:
-            pretrained_model = tf.keras.applications.resnet50.ResNet50(
+            pretrained_model = pretrained_model_chosen(
                 input_shape=(224, 224, 3),
                 include_top=False,
                 weights='imagenet',
@@ -175,7 +232,7 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None)
         # callbacks = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
         
         ## no early stop
-        model.fit(train_images, validation_data=val_images, epochs=25)
+        model.fit(train_images, validation_data=val_images, epochs=30)
 
         results = model.evaluate(test_images,  verbose=0)
         # =========================
@@ -193,11 +250,17 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None)
         
     ## print  mean results
     # =========================
-    print(f"acc mean = {np.round(np.mean(test_acc), 2)}, std = {np.round(np.std(test_acc), 2)}")
-    print(test_acc)
-    print(f"f1  mean = {np.round(np.mean(test_f1), 2)}, std = {np.round(np.std(test_f1), 2)}")
-    print(test_f1)
+    acc_mean  = np.round(np.mean(test_acc), 2)
+    acc_std = np.round(np.std(test_acc), 2)
+    f1_mean  = np.round(np.mean(test_f1), 2)
+    f1_std = np.round(np.std(test_f1), 2)
+    # print(f"acc mean = {acc_mean}, std = {acc_std}")
+    # print(test_acc)
+    # print(f"f1  mean = {f1_mean}, std = {f1_std}")
+    # print(test_f1)
     # =========================
+
+    return {'acc_mean':acc_mean, 'acc_std':acc_std, 'test_acc':test_acc, 'f1_mean':f1_mean, 'f1_std':f1_std, 'test_f1':test_f1}
 
 
 #####################################
@@ -221,9 +284,42 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None)
 #####################################
 
 
+
 ## 訓練front or side
 # =========================
-path = "E://data_bone//all//front"
+# path = "E://data_bone//4-a+b_swift_cut_正確//side"
+# path = "E://data_bone//4-a+b_swift_cut_正確//front"
+
+# path = "E://data_bone//3-a+b_all_正確//side"
+# path = "E://data_bone//3-a+b_all_正確//front"
+
+# path = "E://data_bone//5-a+b_swift_cut_標準//front"
+# path = "E://data_bone//5-a+b_swift_cut_標準//side"
+
+path = "E://ym//測試用//Test"
 # =========================
 
-train_cross_validation(image_dir=path, class_count=2)
+chosen_models = [
+    'resnet50',
+    # 'resnet152',
+    'vgg16',
+    'vgg19',
+    'mobilenet',
+    'mobilenet_v2',
+    'efficientnet',
+    'inception_v3'
+]
+
+results = []
+for i in range(len(chosen_models)):
+    tmp = train_cross_validation(image_dir=path, class_count=3, chosen_model=chosen_models[i])
+    results.append(tmp)
+
+for i in range(len(chosen_models)):
+    print(f'----------------------Model {chosen_models[i]}----------------------')
+    print(f"acc mean = {results[i]['acc_mean']}, std = {results[i]['acc_std']}, test_acc = {results[i]['test_acc']}")
+    print(f"f1  mean = {results[i]['f1_mean']}, std = {results[i]['f1_std']}, test_f1 = {results[i]['test_f1']}")
+
+
+
+    
