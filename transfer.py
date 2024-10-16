@@ -6,19 +6,40 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, f1_score
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, f1_score, precision_score, recall_score
 
 import os
 
 # label
 # =========================
+# def class_2_type(root):
+#     label = ""
+#     if "正常" in root:
+#         label = "0"
+#     else:
+#         label = "1"
+#     return label
+
 def class_2_type(root):
     label = ""
-    if "正常" in root:
+    if "雙踝" in root:
         label = "0"
-    else:
+    elif "三踝" in root:
         label = "1"
     return label
+
+def class_4_type(root):
+    label = ""
+    if "0" in root:
+        label = "0"
+    elif "1" in root:
+        label = "1"
+    elif "2" in root:
+        label = "2"
+    else:
+        label = "3"
+    return label
+
 
 def class_3_type(root):
     label = ""
@@ -38,22 +59,26 @@ def load_path(path, class_count):
     if class_count == 2:
         class_type = class_2_type
     elif class_count == 3:
-        class_type = class_3_type       
+        class_type = class_3_type   
+    elif class_count == 4:
+        class_type = class_4_type 
+
     for root, dirs, files in os.walk(path):
         for file in files:
             label = class_type(root)
-            dataset.append(
-                            {   
-                                'uuid': root.split("\\")[-1],
-                                'label': label,
-                                'image_path': os.path.join(root, file)
-                            }
-                        )
+            if label != "":
+                dataset.append(
+                                {   
+                                    'uuid': root.split("\\")[-1],
+                                    'label': label,
+                                    'image_path': os.path.join(root, file)
+                                }
+                            )
 
     return dataset
 
 
-def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/"):
+def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/", save_name=""):
 
     ## load data and  labels
     # =========================
@@ -179,7 +204,9 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/")
 
     ## save model to this path
     # =========================
-    model.save(save_path + part2 + "_" + part + "_" + str(class_count) + "class" + "_frac.h5")
+    # model.save(save_path + part2 + "_" + part + "_" + str(class_count) + "class" + "_frac.h5")
+    # model.save(save_path + part2 + "_" + part + "_" + "bi_tri_" + "class" + "_frac.h5")
+    model.save(save_path + save_name +"_frac.h5")
     # =========================
 
 
@@ -189,9 +216,14 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/")
     pred = model.predict(test_images)
     predicted_labels = np.argmax(pred, axis=1)
     f1 = f1_score(test_images.labels, predicted_labels, average='macro')
+    precision = precision_score(test_images.labels, predicted_labels, average='macro')
+    recall = recall_score(test_images.labels, predicted_labels, average='macro')
+
     print(results)
     print(f"Test Accuracy: {np.round(results[1], 2)}")
     print(f"f1 score: {np.round(f1, 2)}")
+    print(f"precision: {np.round(precision, 2)}")
+    print(f"recall: {np.round(recall, 2)}")
     # =========================
 
 
@@ -204,7 +236,9 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/")
     plt.xlabel('epoch')
     plt.legend(['train', 'val'], loc='upper left')
     figAcc = plt.gcf()
-    my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Accuracy.jpeg")
+    # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Accuracy.jpeg")
+    # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + "bi_tri_" + "class_Accuracy.jpeg")
+    my_file = os.path.join("./plots/Accuracy.jpeg")
     figAcc.savefig(my_file)
     plt.clf()
     # =========================
@@ -219,7 +253,9 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/")
     plt.xlabel('epoch')
     plt.legend(['train', 'val'], loc='upper left')
     figAcc = plt.gcf()
-    my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Loss.jpeg")
+    # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Loss.jpeg")
+    # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + "bi_tri_" + "class_Loss.jpeg")
+    my_file = os.path.join("./plots/Loss.jpeg")
     figAcc.savefig(my_file)
     plt.clf()
     # =========================
@@ -231,13 +267,18 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/")
         display_labels = [0, 1]
     elif class_count == 3:
         display_labels = [0, 1, 2]
+    elif class_count == 4:
+        display_labels = [0, 1, 2, 3]
+    
 
     cm = confusion_matrix(test_images.labels, predicted_labels)
     cm_display = ConfusionMatrixDisplay(confusion_matrix = cm, display_labels = display_labels)
     cm_display.plot()
     plt.title(part2 +"_"+ part + ' Confusion Matrix')
     figAcc = plt.gcf()
-    my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Confusion Matrix.jpeg")
+    # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Confusion Matrix.jpeg")
+    # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + "bi_tri_" + "class_Confusion Matrix.jpeg")
+    my_file = os.path.join("./plots/Confusion Matrix.jpeg")
     figAcc.savefig(my_file)
     plt.clf()
     # =========================
@@ -251,9 +292,9 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/")
 
 
 ## 訓練front or side
-# =========================
-path = "E://data_bone//all//side"
-save_path = "./weights/中榮/side/transfer_imagenet/all/"
+# # =========================
+# path = "E://data_bone//all//front"
+# save_path = "./weights/中榮/front/transfer_imagenet/all/"
 # =========================
 
 ## 所有部位
@@ -266,5 +307,11 @@ save_path = "./weights/中榮/side/transfer_imagenet/all/"
 
 ## imagenet
 # =========================
-trainByPart(image_dir=path, class_count=2, save_path=save_path)
+# trainByPart(image_dir=path, class_count=2, save_path=save_path)
 # =========================
+
+
+path = "E://data_bone//5-a+b_swift_cut_標準//side"
+save_path = ".//weights//中榮//side//transfer_imagenet//a+b_new_data//"
+save_name = "swift_cut_標準"
+trainByPart(image_dir=path, class_count=3, save_path=save_path, save_name=save_name)
