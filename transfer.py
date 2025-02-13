@@ -206,7 +206,7 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/",
     # =========================
     # model.save(save_path + part2 + "_" + part + "_" + str(class_count) + "class" + "_frac.h5")
     # model.save(save_path + part2 + "_" + part + "_" + "bi_tri_" + "class" + "_frac.h5")
-    model.save(save_path + save_name +"_frac.h5")
+    # model.save(save_path + save_name +"_frac.h5")
     # =========================
 
 
@@ -222,8 +222,8 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/",
     print(results)
     print(f"Test Accuracy: {np.round(results[1], 2)}")
     print(f"f1 score: {np.round(f1, 2)}")
-    print(f"precision: {np.round(precision, 2)}")
-    print(f"recall: {np.round(recall, 2)}")
+    # print(f"precision: {np.round(precision, 2)}")
+    # print(f"recall: {np.round(recall, 2)}")
     # =========================
 
 
@@ -239,7 +239,7 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/",
     # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Accuracy.jpeg")
     # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + "bi_tri_" + "class_Accuracy.jpeg")
     my_file = os.path.join("./plots/Accuracy.jpeg")
-    figAcc.savefig(my_file)
+    # figAcc.savefig(my_file)
     plt.clf()
     # =========================
 
@@ -256,7 +256,7 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/",
     # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Loss.jpeg")
     # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + "bi_tri_" + "class_Loss.jpeg")
     my_file = os.path.join("./plots/Loss.jpeg")
-    figAcc.savefig(my_file)
+    # figAcc.savefig(my_file)
     plt.clf()
     # =========================
 
@@ -279,7 +279,7 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/",
     # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + str(class_count) + "class_Confusion Matrix.jpeg")
     # my_file = os.path.join("./plots/" + part + "_" + part2 + "_" + "bi_tri_" + "class_Confusion Matrix.jpeg")
     my_file = os.path.join("./plots/Confusion Matrix.jpeg")
-    figAcc.savefig(my_file)
+    # figAcc.savefig(my_file)
     plt.clf()
     # =========================
 
@@ -299,10 +299,12 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/",
 
 ## 所有部位
 # =========================
+path = "E://data_bone//3-a+b_all_正確//side"
 # maru_part_arr = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND", "XR_HUMERUS", "XR_SHOULDER", "XR_WRIST"]
-# for a in maru_part_arr:
-#     maru_part = f"D://reaserch//Bone-Fracture-Detection//weights2//ResNet50_{a}_frac.h5"
-#     trainByPart(path, maru_part)
+maru_part_arr = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND"]
+for a in maru_part_arr:
+    maru_part = f"D://reaserch//Bone-Fracture-Detection//weights//MURA//ResNet50_{a}_frac.h5"
+    trainByPart(image_dir=path, class_count=3, maru_part=maru_part)
 # =========================
 
 ## imagenet
@@ -311,7 +313,7 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/",
 # =========================
 
 
-path = "E://data_bone//5-a+b_swift_cut_標準//side"
-save_path = ".//weights//中榮//side//transfer_imagenet//a+b_new_data//"
-save_name = "swift_cut_標準"
-trainByPart(image_dir=path, class_count=3, save_path=save_path, save_name=save_name)
+# path = "E://data_bone//4-a+b_swift_cut_正確//front"
+# save_path = ".//weights//中榮//front//transfer_imagenet//a+b_new_data//"
+# save_name = "4-a+b_swift_cut_正確_3class"
+# trainByPart(image_dir=path, class_count=3, save_path=save_path, save_name=save_name)

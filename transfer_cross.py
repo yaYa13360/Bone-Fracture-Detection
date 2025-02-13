@@ -293,10 +293,12 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None,
 # path = "E://data_bone//3-a+b_all_正確//side"
 # path = "E://data_bone//3-a+b_all_正確//front"
 
-# path = "E://data_bone//5-a+b_swift_cut_標準//front"
 # path = "E://data_bone//5-a+b_swift_cut_標準//side"
+# path = "E://data_bone//5-a+b_swift_cut_標準//front"
 
-path = "E://ym//測試用//Test"
+# path = "E://data_bone//6-a+b_swift_cut_正確_5cluster//side"
+path = "E://data_bone//6-a+b_swift_cut_正確_5cluster//front"
+
 # =========================
 
 chosen_models = [
@@ -312,7 +314,7 @@ chosen_models = [
 
 results = []
 for i in range(len(chosen_models)):
-    tmp = train_cross_validation(image_dir=path, class_count=3, chosen_model=chosen_models[i])
+    tmp = train_cross_validation(image_dir=path, class_count=2, chosen_model=chosen_models[i])
     results.append(tmp)
 
 for i in range(len(chosen_models)):
