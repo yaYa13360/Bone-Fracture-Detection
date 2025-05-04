@@ -301,15 +301,15 @@ def trainByPart(image_dir,class_count=2, maru_part=None, save_path="./weights/",
 # =========================
 path = "E://data_bone//3-a+b_all_正確//side"
 # maru_part_arr = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND", "XR_HUMERUS", "XR_SHOULDER", "XR_WRIST"]
-maru_part_arr = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND"]
-for a in maru_part_arr:
-    maru_part = f"D://reaserch//Bone-Fracture-Detection//weights//MURA//ResNet50_{a}_frac.h5"
-    trainByPart(image_dir=path, class_count=3, maru_part=maru_part)
+# maru_part_arr = ["XR_ELBOW", "XR_FINGER", "XR_FOREARM", "XR_HAND"]
+# for a in maru_part_arr:
+#     maru_part = f"D://reaserch//Bone-Fracture-Detection//weights//MURA//ResNet50_{a}_frac.h5"
+#     trainByPart(image_dir=path, class_count=3, maru_part=maru_part)
 # =========================
 
 ## imagenet
 # =========================
-# trainByPart(image_dir=path, class_count=2, save_path=save_path)
+trainByPart(image_dir=path, class_count=3, save_path="9_data")
 # =========================
 
 

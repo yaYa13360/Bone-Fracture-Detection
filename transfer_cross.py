@@ -228,11 +228,12 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None,
         # =========================
         model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 
-        ## early stop 
-        # callbacks = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+       ## early stop 
+        early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True)
+        model.fit(train_images, validation_data=val_images, callbacks=[early_stopping], epochs=30)
         
         ## no early stop
-        model.fit(train_images, validation_data=val_images, epochs=30)
+        # model.fit(train_images, validation_data=val_images, epochs=30)
 
         results = model.evaluate(test_images,  verbose=0)
         # =========================
@@ -299,6 +300,9 @@ def train_cross_validation(image_dir, n_splits=5, class_count=2, maru_part=None,
 # path = "E://data_bone//6-a+b_swift_cut_正確_5cluster//side"
 path = "E://data_bone//6-a+b_swift_cut_正確_5cluster//front"
 
+
+path = "E:\\data_bone\\9-a+b_swift_cut_正確_V2\\side"
+path = "E:\\data_bone\\9-a+b_swift_cut_正確_V2\\front"
 # =========================
 
 chosen_models = [
@@ -313,8 +317,9 @@ chosen_models = [
 ]
 
 results = []
+print(len(chosen_models))
 for i in range(len(chosen_models)):
-    tmp = train_cross_validation(image_dir=path, class_count=2, chosen_model=chosen_models[i])
+    tmp = train_cross_validation(image_dir=path, class_count=3, chosen_model=chosen_models[i])
     results.append(tmp)
 
 for i in range(len(chosen_models)):
